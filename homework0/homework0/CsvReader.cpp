@@ -45,5 +45,6 @@ std::vector<std::string> CsvReader::split(const std::string& string, char delim)
 		line.push_back(ch);
 	}
 
+	splitted.push_back(line);
 	return splitted;
 }

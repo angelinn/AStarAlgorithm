@@ -5,7 +5,8 @@
 #include <fstream>
 #include <string>
 
-Maze::Maze(const Point& start, const Point& end) : startPosition(start), endPosition(end), map(NULL)
+Maze::Maze(const Point& start, const Point& end)
+	: startPosition(start), endPosition(end), map(NULL), rows(0), columns(0)
 {  }
 
 Maze::~Maze()
@@ -13,45 +14,84 @@ Maze::~Maze()
 	delete[] map;
 	map = NULL;
 
-	size_t openSize = open.size();
-	for (size_t i = 0; i < openSize; ++i)
-		delete open[i];
+	////size_t openSize = open.size();
+	////for (size_t i = 0; i < openSize; ++i)
+	////	delete open[i];
 
-	size_t closedSize = closed.size();
-	for (size_t j = 0; j < closedSize; ++j)
-		delete closed[j];
+	//size_t closedSize = closed.size();
+	//for (size_t j = 0; j < closedSize; ++j)
+	//	delete closed[j];
 
-	open.clear();
-	closed.clear();
+	////open.clear();
+	//closed.clear();
 }
 
 void Maze::loadCsv(const std::string& filePath)
 {
 	CsvReader csvReader;
-	auto csv = csvReader.readCsv(filePath);
+	std::vector<std::string> csv = csvReader.readCsv(filePath);
 	parseCsv(csv);
-
 }
 
 void Maze::parseCsv(const std::vector<std::string>& csv)
 {
-	map = new Node*[csv.size()];
-	printf("Allocating %d rows..\n", csv.size() - 1);
+	rows = csv.size() - 1;
+	columns = csv[0].size() - 1;
 
-	for (size_t i = 1; i < csv.size(); ++i)
+	map = new Node**[rows];
+	printf("Allocating %d rows..\n", rows);
+
+	for (size_t i = 1, k = 0; i < csv.size(); ++i, ++k)
 	{
-		map[i] = new Node[csv[i].size()];
-		printf("Allocation %d columns..\n", csv[i].size());
+		map[k] = new Node*[columns];
+		printf("Allocating %d columns..\n", columns);
 		for (size_t j = 1; j < csv[i].size(); ++j)
 		{
-			if (csv[i][j] == WATER)
-				map[i][j].cost = 2;
-			else
-				map[i][j].cost = 1;
+			map[k][j] = new Node();
 
-			map[i][j].isPassable = (!csv[i][j] == WALL);
-			printf("%c(%d)", csv[i][j], map[i][j].cost);
+			if (csv[i][j] == WATER)
+				map[k][j]->cost = 2;
+			else
+				map[k][j]->cost = 1;
+
+			map[k][j]->location = Point(k, j);
+			map[k][j]->isPassable = csv[i][j] != WALL;
+			printf("[%c]", csv[i][j]);
 		}
 		printf("\n");
 	}
+}
+
+std::vector<Node*> Maze::getNeighbours(const Node* current)
+{
+	int x = current->location.x;
+	int y = current->location.y;
+
+	return std::vector<Node*>();
+}
+
+void createEuristics()
+{
+
+}
+
+void Maze::shortestPath()
+{
+	Node* current = map[startPosition.x][startPosition.y];
+	open.push(current);
+
+	while (true)
+	{
+		current = open.top();
+		open.pop();
+		closed.push_back(current);
+
+		if (current->h == 0)
+			return;
+
+
+
+	}
+
+
 }

@@ -8,7 +8,18 @@ const char TARGET = 'X';
 const char WALL = 'N';
 
 #include <vector>
+#include <queue>
+
 #include "Point.h"
+#include "Node.h"
+
+struct LessThanByFCost
+{
+	bool operator()(const Node* lhs, const Node* rhs) const
+	{
+		return lhs->f() < rhs->f();
+	}
+};
 
 struct Node;
 
@@ -19,12 +30,15 @@ public:
 	~Maze();
 
 public:
-	void shortestPath(Node *);
+	void shortestPath();
 	void loadCsv(const std::string &);
 
 private:
 	Maze(const Maze &) = delete;
 	Maze& operator=(const Maze &) = delete;
+
+private:
+	std::vector<Node*> getNeighbours(const Node *);
 
 private:
 	void parseCsv(const std::vector<std::string> &);
@@ -33,11 +47,13 @@ private:
 	Point startPosition;
 	Point endPosition;
 
+	size_t rows;
+	size_t columns;
+
 private:
-	Node** map;
-	std::vector<Node*> open;
+	Node*** map;
+	std::priority_queue<Node*, std::vector<Node*>, LessThanByFCost> open;
 	std::vector<Node*> closed;
 };
-
 
 #endif // MAZE_H

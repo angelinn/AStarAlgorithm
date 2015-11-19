@@ -7,12 +7,14 @@ struct Node
 	size_t g;
 	// Distance to target node
 	size_t h;
-	size_t f;
+	size_t f() const { return g + h; }
 
 	size_t cost;
 	bool isPassable;
+	Point location;
 
 	Node* parent;
+
 };
 
 
