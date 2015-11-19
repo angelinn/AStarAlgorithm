@@ -23,7 +23,8 @@ int main(int argc, const char* argv[])
 	Point start{ 6, 0 };
 	Point end{ 5, 7 };
 
-	Maze maze(csvFile, start, end);
+	Maze maze(start, end);
+	maze.loadCsv(csvFile);
 
 	return 0;
 }

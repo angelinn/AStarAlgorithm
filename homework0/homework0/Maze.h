@@ -15,20 +15,19 @@ struct Node;
 class Maze
 {
 public:
-	Maze(const std::string &, const Point &, const Point &);
+	Maze(const Point &, const Point &);
 	~Maze();
 
 public:
 	void shortestPath(Node *);
+	void loadCsv(const std::string &);
 
 private:
 	Maze(const Maze &) = delete;
 	Maze& operator=(const Maze &) = delete;
 
 private:
-	std::string readCsv(const std::string &) const;
 	void parseCsv(const std::vector<std::string> &);
-	std::vector<std::string> split(const std::string &, char = '\n') const;
 
 private:
 	Point startPosition;

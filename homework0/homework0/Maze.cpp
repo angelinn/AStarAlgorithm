@@ -1,16 +1,12 @@
 #include "Maze.h"
-#include "Node.h""
+#include "Node.h"
+#include "CsvReader.h"
 
 #include <fstream>
 #include <string>
 
-Maze::Maze(const std::string& filePath, const Point& start, const Point& end) 
-	: startPosition(start), endPosition(end), map(NULL)
-{
-	std::string csv = readCsv(filePath);
-	auto splitted = split(csv);
-	parseCsv(splitted);
-}
+Maze::Maze(const Point& start, const Point& end) : startPosition(start), endPosition(end), map(NULL)
+{  }
 
 Maze::~Maze()
 {
@@ -29,43 +25,12 @@ Maze::~Maze()
 	closed.clear();
 }
 
-std::string Maze::readCsv(const std::string& filePath) const
+void Maze::loadCsv(const std::string& filePath)
 {
-	std::ifstream mapHandle(filePath, std::ios::in);
-	if (!mapHandle)
-		throw std::exception("Couldn't open map file.");
+	CsvReader csvReader;
+	auto csv = csvReader.readCsv(filePath);
+	parseCsv(csv);
 
-	std::string current;
-	std::string message;
-
-	int i = 0;
-	while (!mapHandle.eof())
-	{
-		std::getline(mapHandle, current, ',');
-		message += current;
-	}
-
-	mapHandle.close();
-	return message;
-}
-
-std::vector<std::string> Maze::split(const std::string& string, char delim) const
-{
-	std::vector<std::string> splitted;
-	std::string line;
-	
-	for (char ch : string)
-	{
-		if (ch == '\n')
-		{
-			splitted.push_back(line);
-			line.clear();
-			continue;
-		}
-		line.push_back(ch);
-	}
-
-	return splitted;
 }
 
 void Maze::parseCsv(const std::vector<std::string>& csv)
