@@ -14,9 +14,13 @@ Maze::~Maze()
 	for (int i = 0; i < rows; ++i)
 	{
 		for (int j = 0; j < columns; ++j)
+		{
 			delete map[i][j];
+			map[i][j] = NULL;
+		}
 
 		delete[] map[i];
+		map[i] = NULL;
 	}
 
 	delete[] map;
@@ -127,11 +131,6 @@ size_t Maze::calculateHeuristics(Node* current) const
 	return targetCost;
 }
 
-size_t Maze::calculateStepsFromStart(Node* current) const
-{
-	return 0;
-}
-
 size_t Maze::calculate(Node* current, Point point) const
 {
 	size_t& targetCost = point == startPosition ? current->g : current->h;
@@ -185,18 +184,17 @@ void Maze::shortestPath()
 	current->h = calculateHeuristics(current);
 	open.push(current);
 	visited.push_back(current->location);
+	std::ofstream hnadle("log_g.txt", std::ios::out);
 
 	while (true)
 	{
 		current = open.top();
 		printf("Choosing (%i, %i), H: %i, G: %i\n", current->location.x, current->location.y, current->h, current->g);
 		open.pop();
-		//visited.erase(std::find(visited.begin(), visited.end(), current->location));
+		visited.erase(std::find(visited.begin(), visited.end(), current->location));
 		if (open.size() && open.top()->f() == current->f() && open.top()->h < current->h)
-		{
-			current = open.top();
-			open.pop();
-		}
+			continue;
+
 		closed.push_back(current->location);
 
 
@@ -226,7 +224,7 @@ void Maze::shortestPath()
 
 		std::vector<Node*> neighbours = getNeighbours(current);
 		printf("Got %i neighbours..\n", neighbours.size());
-		for (Node* neighbour : neighbours)
+		for (Node*& neighbour : neighbours)
 		{
 			if (!neighbour->isPassable)
 				printf("(%i, %i) not passable\n", neighbour->location.x, neighbour->location.y);
@@ -235,27 +233,30 @@ void Maze::shortestPath()
 			if (!neighbour->isPassable || std::find(closed.begin(), closed.end(), neighbour->location) != closed.end())
 				continue;
 
-			//if (std::find(visited.begin(), visited.end(), neighbour->location) != visited.end())
-			//	continue;
-
-
 			size_t newG = current->cost == 2 ? 20 : getCostFromStart(current->location, neighbour->location);
 			newG += current->g;
-			if (neighbour->g == 0 || newG < neighbour->g)// || std::find(visited.begin(), visited.end(), neighbour->location) == visited.end())
+			if (neighbour->g == 0 || newG <= neighbour->g)
 			{
+				Node* del = neighbour;
+				neighbour = new Node(*del);
+				//map[neighbour->location.x][neighbour->location.y] = new Node(*neighbour);
+
 				neighbour->parent = current;
 				neighbour->g = newG;
+				hnadle << "(" << neighbour->location.x << ", " << neighbour->location.y << ") - G: " << neighbour->g << "\n";
+
 				neighbour->h = calculateHeuristics(neighbour);
 
 				printf("neighbour pos (%i, %i), H: %i, G: %i\n", neighbour->location.x, neighbour->location.y, neighbour->h, neighbour->g);
 				//system("pause");
 
-				if (std::find(visited.begin(), visited.end(), neighbour->location) == visited.end())
-				{
+				//if (std::find(visited.begin(), visited.end(), neighbour->location) == visited.end())
+				//{
 					open.push(neighbour);
 					visited.push_back(neighbour->location);
-				}
+				//}
 			}
 		}
 	}
+	hnadle.close();
 }
