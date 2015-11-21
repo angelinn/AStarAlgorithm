@@ -2,15 +2,24 @@
 #define PQUEUE_H
 
 #include "Node.h"
+#include <set>
 
 class PQueue
 {
-	struct QNode
-	{
-		Node* data;
-		QNode* next;
-	};
-};
+public:
+	PQueue();
 
+public:
+	const Node* top() const;
+	Node* pop();
+	void push(Node *);
+
+private:
+	PQueue(const PQueue &) = delete;
+	PQueue& operator=(const PQueue &) = delete;
+
+private:
+	std::set<Node*> front;
+};
 
 #endif // PQUEUE_H

@@ -7,6 +7,9 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{137595ad-6557-44d2-8257-d5e5642f7afd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Priority Queue">
+      <UniqueIdentifier>{0ff151c4-65ec-4cb9-b674-8206467803a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Maze.cpp">
@@ -15,6 +18,9 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="CsvReader.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="PQueue.cpp">
+      <Filter>Priority Queue</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -29,6 +35,9 @@
     </ClInclude>
     <ClInclude Include="CsvReader.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="PQueue.h">
+      <Filter>Priority Queue</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

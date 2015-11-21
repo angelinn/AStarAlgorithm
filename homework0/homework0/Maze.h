@@ -8,7 +8,7 @@ const char TARGET = 'X';
 const char WALL = 'N';
 
 #include <vector>
-#include <queue>
+#include "PQueue.h"
 
 #include "Point.h"
 #include "Node.h"
@@ -42,7 +42,6 @@ private:
 	size_t calculateHeuristics(Node *) const;
 	size_t calculate(Node *, Point) const;
 	size_t getCostFromStart(const Point &, const Point &) const;
-	size_t calculateStepsFromStart(Node *) const;
 
 private:
 	void parseCsv(const std::vector<std::string> &);
@@ -56,7 +55,9 @@ private:
 
 private:
 	Node*** map;
-	std::priority_queue<Node*, std::vector<Node*>, LessThanByFCost> open;
+	
+	PQueue open;
+	//std::priority_queue<Node*, std::vector<Node*>, LessThanByFCost> open;
 	std::vector<Point> closed;
 	std::vector<Point> visited;
 };

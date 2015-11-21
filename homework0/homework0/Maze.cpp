@@ -178,6 +178,7 @@ size_t Maze::getCostFromStart(const Point& parentLocation, const Point& currentL
 
 	return 10;
 }
+
 void Maze::shortestPath()
 {
 	Node* current = map[startPosition.x][startPosition.y];
@@ -188,12 +189,12 @@ void Maze::shortestPath()
 
 	while (true)
 	{
-		current = open.top();
+		current = open.pop();
 		printf("Choosing (%i, %i), H: %i, G: %i\n", current->location.x, current->location.y, current->h, current->g);
-		open.pop();
+		//open.pop();
 		visited.erase(std::find(visited.begin(), visited.end(), current->location));
-		if (open.size() && open.top()->f() == current->f() && open.top()->h < current->h)
-			continue;
+		//if (open.size() && top()->f() == current->f() && top()->h < current->h)
+		//	continue;
 
 		closed.push_back(current->location);
 
@@ -224,7 +225,7 @@ void Maze::shortestPath()
 
 		std::vector<Node*> neighbours = getNeighbours(current);
 		printf("Got %i neighbours..\n", neighbours.size());
-		for (Node*& neighbour : neighbours)
+		for (Node* neighbour : neighbours)
 		{
 			if (!neighbour->isPassable)
 				printf("(%i, %i) not passable\n", neighbour->location.x, neighbour->location.y);
@@ -237,9 +238,9 @@ void Maze::shortestPath()
 			newG += current->g;
 			if (neighbour->g == 0 || newG <= neighbour->g)
 			{
-				Node* del = neighbour;
-				neighbour = new Node(*del);
-				//map[neighbour->location.x][neighbour->location.y] = new Node(*neighbour);
+				//Node* del = neighbour;
+				//neighbour = new Node(*del);
+				//map[neighbour->location.x][neighbour->location.y] = neighbour;// new Node(*neighbour);
 
 				neighbour->parent = current;
 				neighbour->g = newG;
@@ -250,12 +251,13 @@ void Maze::shortestPath()
 				printf("neighbour pos (%i, %i), H: %i, G: %i\n", neighbour->location.x, neighbour->location.y, neighbour->h, neighbour->g);
 				//system("pause");
 
-				//if (std::find(visited.begin(), visited.end(), neighbour->location) == visited.end())
-				//{
+
 					open.push(neighbour);
 					visited.push_back(neighbour->location);
-				//}
+				
 			}
+			else
+				printf("Something's wrong with (%i, %i), H: %i, G: %i (%i)\n", neighbour->location.x, neighbour->location.y, neighbour->h, neighbour->g, newG);
 		}
 	}
 	hnadle.close();
