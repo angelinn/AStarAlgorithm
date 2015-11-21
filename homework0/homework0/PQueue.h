@@ -2,7 +2,7 @@
 #define PQUEUE_H
 
 #include "Node.h"
-#include <set>
+#include <unordered_set>
 
 class PQueue
 {
@@ -20,7 +20,7 @@ private:
 	PQueue& operator=(const PQueue &) = delete;
 
 private:
-	std::set<Node*> front;
+	std::unordered_set<Node *> front;
 };
 
 #endif // PQUEUE_H
