@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string>
+#include <crtdbg.h>
 
 #include "Maze.h"
 
@@ -18,13 +19,25 @@ int main(int argc, const char* argv[])
 	//std::string csvFile(argv[0]);
 	//Point start { atoi(argv[1]), atoi(argv[2]) };
 	//Point food { atoi(argv[3]), atoi(argv[4]) };
+	{
+		std::string csvFile("C:\\Users\\Betra\\Desktop\\map.csv");
+		Point start{ 5, 0 };
+		Point end{ 4, 7 };
 
-	std::string csvFile("C:\\Users\\Betra\\Desktop\\map.csv");
-	Point start{ 6, 0 };
-	Point end{ 5, 7 };
+		Maze maze(start, end);
+		maze.loadCsv(csvFile);
+		maze.shortestPath();
+	}
 
-	Maze maze(start, end);
-	maze.loadCsv(csvFile);
 
+	//system("cls");
+	//for (int i = 0; i < 5; ++i)
+	//{
+	//	for (int j = 0; j < 5; ++j)
+	//		printf("(%i, %i) ", i, j);
+	//	printf("\n");
+
+	//}
+	_CrtDumpMemoryLeaks();
 	return 0;
 }

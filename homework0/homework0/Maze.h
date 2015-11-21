@@ -17,7 +17,7 @@ struct LessThanByFCost
 {
 	bool operator()(const Node* lhs, const Node* rhs) const
 	{
-		return lhs->f() < rhs->f();
+		return lhs->f() > rhs->f();
 	}
 };
 
@@ -39,6 +39,7 @@ private:
 
 private:
 	std::vector<Node*> getNeighbours(const Node *);
+	size_t calculateHeuristics(Node *, const Point &);
 
 private:
 	void parseCsv(const std::vector<std::string> &);
@@ -53,7 +54,8 @@ private:
 private:
 	Node*** map;
 	std::priority_queue<Node*, std::vector<Node*>, LessThanByFCost> open;
-	std::vector<Node*> closed;
+	std::vector<Point> closed;
+	std::vector<Point> visited;
 };
 
 #endif // MAZE_H

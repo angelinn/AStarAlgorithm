@@ -26,6 +26,9 @@ std::string CsvReader::read(const std::string& filePath) const
 	}
 
 	mapHandle.close();
+	if (!mapHandle)
+		throw std::exception("Couldn't close file.");
+
 	return message;
 }
 
