@@ -13,13 +13,9 @@ Maze::~Maze()
 	for (int i = 0; i < rows; ++i)
 	{
 		for (int j = 0; j < columns; ++j)
-		{
 			delete map[i][j];
-			map[i][j] = NULL;
-		}
 
 		delete[] map[i];
-		map[i] = NULL;
 	}
 
 	delete[] map;
@@ -39,8 +35,6 @@ void Maze::parseCsv(const std::vector<std::string>& csv)
 	columns = csv[0].size();
 
 	map = new Node**[rows];
-	printf("Allocating %d rows..\n", rows);
-	printf("Allocating %d columns per row..\n", columns);
 
 	for (size_t i = 0; i < rows; ++i)
 	{
@@ -56,9 +50,7 @@ void Maze::parseCsv(const std::vector<std::string>& csv)
 
 			map[i][j]->location = Point(i, j);
 			map[i][j]->isPassable = csv[i][j] != WALL;
-			printf("[%c]", csv[i][j]);
 		}
-		printf("\n");
 	}
 }
 
@@ -141,7 +133,51 @@ size_t Maze::getCostFromStart(const Point& parentLocation, const Point& currentL
 	return 10;
 }
 
-void Maze::shortestPath()
+void Maze::printPath(const Node* target) const
+{
+	const Node* current = target;
+	char** matrix = new char*[rows];
+	for (int i = 0; i < rows; ++i)
+		matrix[i] = new char[columns] { ' ' };
+
+
+	while (current->parent)
+	{
+		matrix[current->location.x][current->location.y] = PATH;
+		printf("(%i, %i), ", current->location.x, current->location.y);
+		current = current->parent;
+	}
+
+	printf("\n");
+
+	matrix[startPosition.x][startPosition.y] = PLAYER;
+	matrix[endPosition.x][endPosition.y] = TARGET;
+	
+	char printer = 0;
+	for (int i = 0; i < rows; ++i)
+	{
+		printf("%i", i);
+		for (int j = 0; j < columns; ++j)
+		{
+			if (!map[i][j]->isPassable)
+				printer = WALL;
+			else if (map[i][j]->cost == 2)
+				printer = WATER;
+			else
+				printer = matrix[i][j];
+
+			printf("[%c]", printer);
+		}
+		printf("\n");
+	}
+
+	for (int i = 0; i < rows; ++i)
+		delete[] matrix[i];
+
+	delete[] matrix;
+}
+
+std::vector<std::string> Maze::shortestPath()
 {
 	Node* current = map[startPosition.x][startPosition.y];
 	current->h = calculateHeuristics(current);
@@ -151,41 +187,28 @@ void Maze::shortestPath()
 	{
 		current = open.pop();
 		closed.push_back(current->location);
-		printf("Choosing (%i, %i), H: %i, G: %i\n", current->location.x, current->location.y, current->h, current->g);
-
 
 		if (current->h == 0)
 		{
-			char matrix[8][13]{ ' ' };
-			matrix[startPosition.x][startPosition.y] = 'M';
+			std::vector<std::string> result;
+			std::string coordinates;
+
+			printPath(current);
 			while (current->parent)
 			{
-				matrix[current->location.x][current->location.y] = '*';
-				printf("(%i, %i), ", current->location.x, current->location.y);
+				coordinates = "(" + std::to_string(current->location.x) + ", " + 
+									std::to_string(current->location.y) + ")";
+
+				result.push_back(coordinates);
 				current = current->parent;
 			}
-			printf("\n");
-			for (int i = 0; i < rows; ++i)
-			{
-				printf("%i", i);
-				for (int j = 0; j < columns; ++j)
-					printf("[%c]", !map[i][j]->isPassable ? 'N' : (map[i][j]->cost == 2 ? WATER : (matrix[i][j] == '*' ? matrix[i][j] : matrix[i][j])));
 
-				printf("\n");
-			}
-
-
-			return;
+			return result;
 		}
 
 		std::vector<Node*> neighbours = getNeighbours(current);
-		printf("Got %i neighbours..\n", neighbours.size());
 		for (Node* neighbour : neighbours)
 		{
-			if (!neighbour->isPassable)
-				printf("(%i, %i) not passable\n", neighbour->location.x, neighbour->location.y);
-			if (std::find(closed.begin(), closed.end(), neighbour->location) != closed.end())
-				printf("(%i, %i) already closed\n", neighbour->location.x, neighbour->location.y);
 			if (!neighbour->isPassable || std::find(closed.begin(), closed.end(), neighbour->location) != closed.end())
 				continue;
 
@@ -197,17 +220,9 @@ void Maze::shortestPath()
 				neighbour->g = newG;
 				neighbour->h = calculateHeuristics(neighbour);
 
-				printf("neighbour pos (%i, %i), H: %i, G: %i\n", neighbour->location.x, neighbour->location.y, neighbour->h, neighbour->g);
-				//system("pause");
-
 				if (!open.exists(neighbour))
-				{
 					open.push(neighbour);
-					visited.push_back(neighbour->location);
-				}
 			}
-			else
-				printf("Something's wrong with (%i, %i), H: %i, G: %i (%i)\n", neighbour->location.x, neighbour->location.y, neighbour->h, neighbour->g, newG);
 		}
 	}
 }

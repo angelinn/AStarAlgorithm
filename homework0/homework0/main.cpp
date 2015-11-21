@@ -1,3 +1,17 @@
+/*******************************************************************************************************
+
+										    A * Algorithm
+										  Angelin Nedelchev
+										Faculty Number: 71497
+
+									  Coded using Visual Studio 2015
+
+								  NOTES: CSV file must not end in new line
+
+********************************************************************************************************/
+
+
+
 #include <stdio.h>
 #include <string>
 #include <crtdbg.h>
@@ -22,22 +36,15 @@ int main(int argc, const char* argv[])
 	{
 		std::string csvFile("C:\\Users\\Betra\\Desktop\\map1.csv");
 		Point start{ 5, 0 };
-		Point end{ 2, 10 };
+		Point end{ 4, 7 };
 
 		Maze maze(start, end);
 		maze.loadCsv(csvFile);
-		maze.shortestPath();
+		auto s = maze.shortestPath();
+
+		for (auto string : s)
+			printf("%s ", string.c_str());
 	}
-
-
-	//system("cls");
-	//for (int i = 0; i < 5; ++i)
-	//{
-	//	for (int j = 0; j < 5; ++j)
-	//		printf("(%i, %i) ", i, j);
-	//	printf("\n");
-
-	//}
 	_CrtDumpMemoryLeaks();
 	return 0;
 }

@@ -6,20 +6,12 @@ const char WATER = '~';
 const char PLAYER = 'M';
 const char TARGET = 'X';
 const char WALL = 'N';
+const char PATH = '*';
 
 #include <vector>
 #include "PQueue.h"
 
 #include "Point.h"
-//#include "Node.h"
-//
-//struct LessThanByFCost
-//{
-//	bool operator()(const Node* lhs, const Node* rhs) const
-//	{
-//		return lhs->f() > rhs->f();
-//	}
-//};
 
 struct Node;
 
@@ -30,8 +22,11 @@ public:
 	~Maze();
 
 public:
-	void shortestPath();
+	std::vector<std::string> shortestPath();
 	void loadCsv(const std::string &);
+
+public:
+	void printPath(const Node *) const;
 
 private:
 	Maze(const Maze &) = delete;
@@ -56,9 +51,7 @@ private:
 	Node*** map;
 	
 	PQueue open;
-	//std::priority_queue<Node*, std::vector<Node*>, LessThanByFCost> open;
 	std::vector<Point> closed;
-	std::vector<Point> visited;
 };
 
 #endif // MAZE_H
