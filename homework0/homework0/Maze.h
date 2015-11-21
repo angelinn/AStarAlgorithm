@@ -39,7 +39,10 @@ private:
 
 private:
 	std::vector<Node*> getNeighbours(const Node *);
-	size_t calculateHeuristics(Node *, const Point &);
+	size_t calculateHeuristics(Node *) const;
+	size_t calculate(Node *, Point) const;
+	size_t getCostFromStart(const Point &, const Point &) const;
+	size_t calculateStepsFromStart(Node *) const;
 
 private:
 	void parseCsv(const std::vector<std::string> &);

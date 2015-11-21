@@ -32,27 +32,27 @@ void Maze::loadCsv(const std::string& filePath)
 
 void Maze::parseCsv(const std::vector<std::string>& csv)
 {
-	rows = csv.size() - 1;
-	columns = csv[0].size() - 1;
+	rows = csv.size();
+	columns = csv[0].size();
 
 	map = new Node**[rows];
 	printf("Allocating %d rows..\n", rows);
 	printf("Allocating %d columns per row..\n", columns);
 
-	for (size_t i = 1, k = 0; i < csv.size(); ++i, ++k)
+	for (size_t i = 0; i < rows; ++i)
 	{
-		map[k] = new Node*[columns];
-		for (size_t j = 1, n = 0; j < csv[i].size(); ++j, ++n)
+		map[i] = new Node*[columns];
+		for (size_t j = 0; j < columns; ++j)
 		{
-			map[k][n] = new Node();
+			map[i][j] = new Node();
 
 			if (csv[i][j] == WATER)
-				map[k][n]->cost = 2;
+				map[i][j]->cost = 2;
 			else
-				map[k][n]->cost = 1;
+				map[i][j]->cost = 1;
 
-			map[k][n]->location = Point(k, n);
-			map[k][n]->isPassable = csv[i][j] != WALL;
+			map[i][j]->location = Point(i, j);
+			map[i][j]->isPassable = csv[i][j] != WALL;
 			printf("[%c]", csv[i][j]);
 		}
 		printf("\n");
@@ -90,14 +90,14 @@ std::vector<Node*> Maze::getNeighbours(const Node* current)
 	return neighbours;
 }
 
-size_t Maze::calculateHeuristics(Node* current, const Point& target)
+size_t Maze::calculateHeuristics(Node* current) const
 {
 	size_t targetCost = 0;
 	int x = current->location.x;
 	int y = current->location.y;
 
-	int xDifference = target.x - x;
-	int yDifference = target.y - y;
+	int xDifference = endPosition.x - x;
+	int yDifference = endPosition.y - y;
 
 	while (yDifference && xDifference)
 	{
@@ -106,39 +106,92 @@ size_t Maze::calculateHeuristics(Node* current, const Point& target)
 		y = yDifference > 0 ? y + 1 : y - 1;
 
 
-		xDifference = target.x - x;
-		yDifference = target.y - y;
+		xDifference = endPosition.x - x;
+		yDifference = endPosition.y - y;
 	}
 
 	while (xDifference)
 	{
 		targetCost += map[x][y]->cost * 10;
 		x = xDifference > 0 ? x + 1 : x - 1;
-		xDifference = target.x - x;
+		xDifference = endPosition.x - x;
 	}
 
 	while (yDifference)
 	{
 		targetCost += map[x][y]->cost * 10;
 		y = yDifference > 0 ? y + 1 : y - 1;
-		yDifference = target.y - y;
+		yDifference = endPosition.y - y;
 	}
 
 	return targetCost;
 }
 
+size_t Maze::calculateStepsFromStart(Node* current) const
+{
+	return 0;
+}
+
+size_t Maze::calculate(Node* current, Point point) const
+{
+	size_t& targetCost = point == startPosition ? current->g : current->h;
+	int x = current->location.x;
+	int y = current->location.y;
+
+	int xDifference = point.x - x;
+	int yDifference = point.y - y;
+
+	while (yDifference && xDifference)
+	{
+		targetCost += map[x][y]->cost == 1 ? 15 : 20;
+		x = xDifference > 0 ? x + 1 : x - 1;
+		y = yDifference > 0 ? y + 1 : y - 1;
+
+
+		xDifference = point.x - x;
+		yDifference = point.y - y;
+	}
+
+	while (xDifference)
+	{
+		targetCost += map[x][y]->cost * 10;
+		x = xDifference > 0 ? x + 1 : x - 1;
+		xDifference = point.x - x;
+	}
+
+	while (yDifference)
+	{
+		targetCost += map[x][y]->cost * 10;
+		y = yDifference > 0 ? y + 1 : y - 1;
+		yDifference = point.y - y;
+	}
+
+	return targetCost;
+}
+
+size_t Maze::getCostFromStart(const Point& parentLocation, const Point& currentLocation) const
+{
+	int xDifference = currentLocation.x - parentLocation.x;
+	int yDifference = currentLocation.y - parentLocation.y;
+
+	if (xDifference && yDifference)
+		return 15;
+
+	return 10;
+}
 void Maze::shortestPath()
 {
 	Node* current = map[startPosition.x][startPosition.y];
+	current->h = calculateHeuristics(current);
 	open.push(current);
-	current->g = calculateHeuristics(current, startPosition);
-	current->h = calculateHeuristics(current, endPosition);
+	visited.push_back(current->location);
 
 	while (true)
 	{
 		current = open.top();
 		printf("Choosing (%i, %i), H: %i, G: %i\n", current->location.x, current->location.y, current->h, current->g);
 		open.pop();
+		//visited.erase(std::find(visited.begin(), visited.end(), current->location));
 		if (open.size() && open.top()->f() == current->f() && open.top()->h < current->h)
 		{
 			current = open.top();
@@ -149,7 +202,8 @@ void Maze::shortestPath()
 
 		if (current->h == 0)
 		{
-			char matrix[7][13];
+			char matrix[8][13]{ ' ' };
+			matrix[startPosition.x][startPosition.y] = 'M';
 			while (current->parent)
 			{
 				matrix[current->location.x][current->location.y] = '*';
@@ -161,7 +215,7 @@ void Maze::shortestPath()
 			{
 				printf("%i", i);
 				for (int j = 0; j < columns; ++j)
-					printf("[%c]", !map[i][j]->isPassable ? 'N' : (map[i][j]->cost == 2 ? WATER : (matrix[i][j] == '*' ? matrix[i][j] : ' ')));
+					printf("[%c]", !map[i][j]->isPassable ? 'N' : (map[i][j]->cost == 2 ? WATER : (matrix[i][j] == '*' ? matrix[i][j] : matrix[i][j])));
 
 				printf("\n");
 			}
@@ -174,20 +228,33 @@ void Maze::shortestPath()
 		printf("Got %i neighbours..\n", neighbours.size());
 		for (Node* neighbour : neighbours)
 		{
+			if (!neighbour->isPassable)
+				printf("(%i, %i) not passable\n", neighbour->location.x, neighbour->location.y);
+			if (std::find(closed.begin(), closed.end(), neighbour->location) != closed.end())
+				printf("(%i, %i) already closed\n", neighbour->location.x, neighbour->location.y);
 			if (!neighbour->isPassable || std::find(closed.begin(), closed.end(), neighbour->location) != closed.end())
 				continue;
 
-			if (std::find(visited.begin(), visited.end(), neighbour->location) != visited.end())
-				continue;
-			neighbour->g = calculateHeuristics(neighbour, startPosition);
-			neighbour->h = calculateHeuristics(neighbour, endPosition);
-			printf("neighbour pos (%i, %i), H: %i, G: %i\n", neighbour->location.x, neighbour->location.y, neighbour->h, neighbour->g);
-			//system("pause");
-			neighbour->parent = current;
-			if (std::find(visited.begin(), visited.end(), neighbour->location) == visited.end())
+			//if (std::find(visited.begin(), visited.end(), neighbour->location) != visited.end())
+			//	continue;
+
+
+			size_t newG = current->cost == 2 ? 20 : getCostFromStart(current->location, neighbour->location);
+			newG += current->g;
+			if (neighbour->g == 0 || newG < neighbour->g)// || std::find(visited.begin(), visited.end(), neighbour->location) == visited.end())
 			{
-				open.push(neighbour);
-				visited.push_back(neighbour->location);
+				neighbour->parent = current;
+				neighbour->g = newG;
+				neighbour->h = calculateHeuristics(neighbour);
+
+				printf("neighbour pos (%i, %i), H: %i, G: %i\n", neighbour->location.x, neighbour->location.y, neighbour->h, neighbour->g);
+				//system("pause");
+
+				if (std::find(visited.begin(), visited.end(), neighbour->location) == visited.end())
+				{
+					open.push(neighbour);
+					visited.push_back(neighbour->location);
+				}
 			}
 		}
 	}

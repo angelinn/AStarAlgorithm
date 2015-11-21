@@ -20,7 +20,7 @@ int main(int argc, const char* argv[])
 	//Point start { atoi(argv[1]), atoi(argv[2]) };
 	//Point food { atoi(argv[3]), atoi(argv[4]) };
 	{
-		std::string csvFile("C:\\Users\\Betra\\Desktop\\map.csv");
+		std::string csvFile("C:\\Users\\Betra\\Desktop\\map1.csv");
 		Point start{ 5, 0 };
 		Point end{ 4, 7 };
 

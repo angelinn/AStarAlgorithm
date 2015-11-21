@@ -4,6 +4,10 @@
 struct Node
 {
 public:
+	Node() : g(0), h(0), cost(0), isPassable(false), parent(NULL)
+	{  }
+
+public:
 	size_t f() const { return g + h; }
 
 public:
