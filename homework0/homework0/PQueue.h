@@ -13,6 +13,7 @@ public:
 	const Node* top() const;
 	Node* pop();
 	void push(Node *);
+	bool exists(const Node *) const;
 
 private:
 	PQueue(const PQueue &) = delete;

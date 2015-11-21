@@ -2,7 +2,6 @@
 #include "Node.h"
 #include "CsvReader.h"
 
-#include <fstream>
 #include <string>
 
 Maze::Maze(const Point& start, const Point& end)
@@ -131,43 +130,6 @@ size_t Maze::calculateHeuristics(Node* current) const
 	return targetCost;
 }
 
-size_t Maze::calculate(Node* current, Point point) const
-{
-	size_t& targetCost = point == startPosition ? current->g : current->h;
-	int x = current->location.x;
-	int y = current->location.y;
-
-	int xDifference = point.x - x;
-	int yDifference = point.y - y;
-
-	while (yDifference && xDifference)
-	{
-		targetCost += map[x][y]->cost == 1 ? 15 : 20;
-		x = xDifference > 0 ? x + 1 : x - 1;
-		y = yDifference > 0 ? y + 1 : y - 1;
-
-
-		xDifference = point.x - x;
-		yDifference = point.y - y;
-	}
-
-	while (xDifference)
-	{
-		targetCost += map[x][y]->cost * 10;
-		x = xDifference > 0 ? x + 1 : x - 1;
-		xDifference = point.x - x;
-	}
-
-	while (yDifference)
-	{
-		targetCost += map[x][y]->cost * 10;
-		y = yDifference > 0 ? y + 1 : y - 1;
-		yDifference = point.y - y;
-	}
-
-	return targetCost;
-}
-
 size_t Maze::getCostFromStart(const Point& parentLocation, const Point& currentLocation) const
 {
 	int xDifference = currentLocation.x - parentLocation.x;
@@ -184,19 +146,12 @@ void Maze::shortestPath()
 	Node* current = map[startPosition.x][startPosition.y];
 	current->h = calculateHeuristics(current);
 	open.push(current);
-	visited.push_back(current->location);
-	std::ofstream hnadle("log_g.txt", std::ios::out);
 
 	while (true)
 	{
 		current = open.pop();
-		printf("Choosing (%i, %i), H: %i, G: %i\n", current->location.x, current->location.y, current->h, current->g);
-		//open.pop();
-		visited.erase(std::find(visited.begin(), visited.end(), current->location));
-		//if (open.size() && top()->f() == current->f() && top()->h < current->h)
-		//	continue;
-
 		closed.push_back(current->location);
+		printf("Choosing (%i, %i), H: %i, G: %i\n", current->location.x, current->location.y, current->h, current->g);
 
 
 		if (current->h == 0)
@@ -238,27 +193,21 @@ void Maze::shortestPath()
 			newG += current->g;
 			if (neighbour->g == 0 || newG <= neighbour->g)
 			{
-				//Node* del = neighbour;
-				//neighbour = new Node(*del);
-				//map[neighbour->location.x][neighbour->location.y] = neighbour;// new Node(*neighbour);
-
 				neighbour->parent = current;
 				neighbour->g = newG;
-				hnadle << "(" << neighbour->location.x << ", " << neighbour->location.y << ") - G: " << neighbour->g << "\n";
-
 				neighbour->h = calculateHeuristics(neighbour);
 
 				printf("neighbour pos (%i, %i), H: %i, G: %i\n", neighbour->location.x, neighbour->location.y, neighbour->h, neighbour->g);
 				//system("pause");
 
-
+				if (!open.exists(neighbour))
+				{
 					open.push(neighbour);
 					visited.push_back(neighbour->location);
-				
+				}
 			}
 			else
 				printf("Something's wrong with (%i, %i), H: %i, G: %i (%i)\n", neighbour->location.x, neighbour->location.y, neighbour->h, neighbour->g, newG);
 		}
 	}
-	hnadle.close();
 }

@@ -30,3 +30,17 @@ void PQueue::push(Node* node)
 {
 	front.insert(node);
 }
+
+bool PQueue::exists(const Node* node) const
+{
+	if (front.empty())
+		return false;
+
+	for (auto iter : front)
+	{
+		if (iter->location == node->location)
+			return true;
+	}
+
+	return false;
+}

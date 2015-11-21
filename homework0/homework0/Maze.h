@@ -11,15 +11,15 @@ const char WALL = 'N';
 #include "PQueue.h"
 
 #include "Point.h"
-#include "Node.h"
-
-struct LessThanByFCost
-{
-	bool operator()(const Node* lhs, const Node* rhs) const
-	{
-		return lhs->f() > rhs->f();
-	}
-};
+//#include "Node.h"
+//
+//struct LessThanByFCost
+//{
+//	bool operator()(const Node* lhs, const Node* rhs) const
+//	{
+//		return lhs->f() > rhs->f();
+//	}
+//};
 
 struct Node;
 
@@ -40,7 +40,6 @@ private:
 private:
 	std::vector<Node*> getNeighbours(const Node *);
 	size_t calculateHeuristics(Node *) const;
-	size_t calculate(Node *, Point) const;
 	size_t getCostFromStart(const Point &, const Point &) const;
 
 private:

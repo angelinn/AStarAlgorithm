@@ -22,7 +22,7 @@ int main(int argc, const char* argv[])
 	{
 		std::string csvFile("C:\\Users\\Betra\\Desktop\\map1.csv");
 		Point start{ 5, 0 };
-		Point end{ 4, 7 };
+		Point end{ 2, 10 };
 
 		Maze maze(start, end);
 		maze.loadCsv(csvFile);
