@@ -1,0 +1,10 @@
+Проектът е build-ван с Visual Studio 2015, vc++ компилатор.
+
+В папката има sample csv файл.
+
+exe-то е в .\debug папката.
+
+при проблеми -> angelin.nedelchev@outlook.com
+
+Поздрави
+:)
