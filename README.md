@@ -1,2 +1,2 @@
-# SystemsBasedOnKnowledge,
+# SystemsBasedOnKnowledge
 Subcourse of Artificial Intelligence
