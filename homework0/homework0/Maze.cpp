@@ -1,6 +1,7 @@
 #include "Maze.h"
 #include "Node.h"
 #include "CsvReader.h"
+#include "Definitions.h"
 
 #include <string>
 
@@ -44,9 +45,9 @@ void Maze::parseCsv(const std::vector<std::string>& csv)
 			map[i][j] = new Node();
 
 			if (csv[i][j] == WATER)
-				map[i][j]->cost = 2;
+				map[i][j]->cost = WATER_TYPE;
 			else
-				map[i][j]->cost = 1;
+				map[i][j]->cost = NORMAL_TYPE;
 
 			map[i][j]->location = Point(i, j);
 			map[i][j]->isPassable = csv[i][j] != WALL;
@@ -96,7 +97,7 @@ size_t Maze::calculateHeuristics(Node* current) const
 
 	while (yDifference && xDifference)
 	{
-		targetCost += map[x][y]->cost == 1 ? 15 : 20;
+		targetCost += map[x][y]->cost == NORMAL_TYPE ? DIAGONAL_COST : WATER_COST;
 		x = xDifference > 0 ? x + 1 : x - 1;
 		y = yDifference > 0 ? y + 1 : y - 1;
 
@@ -107,14 +108,14 @@ size_t Maze::calculateHeuristics(Node* current) const
 
 	while (xDifference)
 	{
-		targetCost += map[x][y]->cost * 10;
+		targetCost += map[x][y]->cost * NORMAL_COST;
 		x = xDifference > 0 ? x + 1 : x - 1;
 		xDifference = endPosition.x - x;
 	}
 
 	while (yDifference)
 	{
-		targetCost += map[x][y]->cost * 10;
+		targetCost += map[x][y]->cost * NORMAL_COST;
 		y = yDifference > 0 ? y + 1 : y - 1;
 		yDifference = endPosition.y - y;
 	}
@@ -128,9 +129,9 @@ size_t Maze::getCostFromStart(const Point& parentLocation, const Point& currentL
 	int yDifference = currentLocation.y - parentLocation.y;
 
 	if (xDifference && yDifference)
-		return 15;
+		return DIAGONAL_COST;
 
-	return 10;
+	return NORMAL_COST;
 }
 
 void Maze::printPath(const Node* target) const
@@ -144,7 +145,6 @@ void Maze::printPath(const Node* target) const
 	while (current->parent)
 	{
 		matrix[current->location.x][current->location.y] = PATH;
-		printf("(%i, %i), ", current->location.x, current->location.y);
 		current = current->parent;
 	}
 
@@ -154,21 +154,25 @@ void Maze::printPath(const Node* target) const
 	matrix[endPosition.x][endPosition.y] = TARGET;
 	
 	char printer = 0;
+
+	for (int k = 0; k < columns; ++k)
+		printf("  %c", 'A' + k);
+
 	for (int i = 0; i < rows; ++i)
 	{
+		printf("\n");
 		printf("%i", i);
 		for (int j = 0; j < columns; ++j)
 		{
 			if (!map[i][j]->isPassable)
 				printer = WALL;
-			else if (map[i][j]->cost == 2)
+			else if (map[i][j]->cost == WATER_TYPE)
 				printer = WATER;
 			else
 				printer = matrix[i][j];
 
 			printf("[%c]", printer);
 		}
-		printf("\n");
 	}
 
 	for (int i = 0; i < rows; ++i)
@@ -196,13 +200,14 @@ std::vector<std::string> Maze::shortestPath()
 			printPath(current);
 			while (current->parent)
 			{
-				coordinates = "(" + std::to_string(current->location.x) + ", " + 
-									std::to_string(current->location.y) + ")";
+				coordinates = "(" + std::string(1, 'A' + current->location.y) + ", " +
+									std::to_string(current->location.x) + ")";
 
 				result.push_back(coordinates);
 				current = current->parent;
 			}
 
+			std::reverse(result.begin(), result.end());
 			return result;
 		}
 
@@ -212,7 +217,10 @@ std::vector<std::string> Maze::shortestPath()
 			if (!neighbour->isPassable || std::find(closed.begin(), closed.end(), neighbour->location) != closed.end())
 				continue;
 
-			size_t newG = current->cost == 2 ? 20 : getCostFromStart(current->location, neighbour->location);
+			size_t newG = (current->cost == WATER_TYPE) 
+						  ? WATER_COST 
+						  : getCostFromStart(current->location, neighbour->location);
+
 			newG += current->g;
 			if (neighbour->g == 0 || newG <= neighbour->g)
 			{

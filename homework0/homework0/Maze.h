@@ -1,16 +1,9 @@
 #ifndef MAZE_H
 #define MAZE_H
 
-const char WHITE_SPACE = ' ';
-const char WATER = '~';
-const char PLAYER = 'M';
-const char TARGET = 'X';
-const char WALL = 'N';
-const char PATH = '*';
-
 #include <vector>
-#include "PQueue.h"
 
+#include "PQueue.h"
 #include "Point.h"
 
 struct Node;
@@ -23,10 +16,10 @@ public:
 
 public:
 	std::vector<std::string> shortestPath();
-	void loadCsv(const std::string &);
 
 public:
 	void printPath(const Node *) const;
+	void loadCsv(const std::string &);
 
 private:
 	Maze(const Maze &) = delete;

@@ -39,5 +39,8 @@
     <ClInclude Include="PQueue.h">
       <Filter>Priority Queue</Filter>
     </ClInclude>
+    <ClInclude Include="Definitions.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
