@@ -1,2 +1,2 @@
-# SystemsBasedOnKnowledge
-[Systems Based On Knowledge @ FMI]
+# SystemsBasedOnKnowledge, subcourse of Artificial Intelligence
+[AI @ FMI]
